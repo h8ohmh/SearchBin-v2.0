@@ -10,18 +10,19 @@ It has three capabilities for searching.
 -Search for a plain text string
 -Search for a smaller binary file
 
-Syntax:
-searchbin_better.py -t PATTERN [FILE [FILE...]]
-searchbin_better.py -x PATTERN [FILE [FILE...]]
-searchbin_better.py -f FILE    [FILE [FILE...]]
-
-Additional function vs V1.0
+Additional features vs V1.0
 + case insenstive match
-+ hexdump around each match
++ hexdump around each match (-128 pos till +128)
 + execution of shell commands for each match
 + locale number grouping (e.g. pos 100000 -> 100'000)
 + python object
 + better options 
+
+
+Syntax:
+searchbin_better.py -t PATTERN [FILE [FILE...]]
+searchbin_better.py -x PATTERN [FILE [FILE...]]
+searchbin_better.py -f FILE    [FILE [FILE...]]
 
 EXAMPLES
 Search for the hex bytes "FF14DE" in the file gamefile.db:
