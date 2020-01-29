@@ -1,20 +1,31 @@
-SearchBin is a fast commandline program for searching within binary files. It's a bit like grep for binaries.
+SearchBin_Better is a fast commandline program for searching within
+binary files. It's a bit like grep for binaries.
+
+Version
+    2.0 by holger.ohmacht @ mail . com
+    1.0 by sepero 111 @ gmx . com
 
 It has three capabilities for searching.
 -Search for bytes using hexidecimal
 -Search for a plain text string
 -Search for a smaller binary file
 
-
 Syntax:
-searchbin.py -t PATTERN [FILE [FILE...]]
-searchbin.py -p PATTERN [FILE [FILE...]]
-searchbin.py -f FILE    [FILE [FILE...]]
+searchbin_better.py -t PATTERN [FILE [FILE...]]
+searchbin_better.py -x PATTERN [FILE [FILE...]]
+searchbin_better.py -f FILE    [FILE [FILE...]]
 
+Additional function vs V1.0
++ case insenstive match
++ hexdump around each match
++ execution of shell commands for each match
++ locale number grouping (e.g. pos 100000 -> 100'000)
++ python object
++ better options 
 
 EXAMPLES
 Search for the hex bytes "FF14DE" in the file gamefile.db:
-$ ./searchbin.py -p "FF14DE" gamefile.db
+$ ./searchbin_better.py -x "FF14DE" gamefile.db
 Match at offset:            907          38B in  gamefile.db
 Match at offset:           1881          759 in  gamefile.db
 Match at offset:           7284         1C74 in  gamefile.db
@@ -22,92 +33,158 @@ Match at offset:           7420         1CFC in  gamefile.db
 Match at offset:           8096         1FA0 in  gamefile.db
 
 
+Mutltiple file arguments will be worked one by one
+    like
+$ ./searchbin_better.py -x "FF??DE" --file gamefile.db --file gamefi2.db
+    meaning that first gamefile.db, then gamefi2.db will be searched
+
 The printed offsets are listed in decimal and hexidecimal formats.
-You can also search for unknown patterns with "??". Just insert them where ever you have an unknown byte:
-$ ./searchbin.py -p "FF??DE" gamefile.db
+You can also search for unknown patterns with "??". Just insert them
+where ever you have an unknown byte:
+$ ./searchbin_better.py -x "FF??DE" --file gamefile.db
 
 
 You can search through multiple files at once, and search piped input:
-$ ./searchbin.py -p "FF??EE" gamefile.db supersecret.idx
-$ cat gamefile.db | ./searchbin -p "FF??EE"
+$ ./searchbin_better.py -x "FF??EE" gamefile.db supersecret.idx
+$ cat gamefile.db | ./searchbin_better -x "FF??EE"
 
 
 You can also search using regular text strings and other binary files.
-$ ./searchbin.py -t "hello" gamefile.db
-$ ./searchbin.py -f binaryfile gamefile.db
+$ ./searchbin_better.py -t "hello" --file gamefile.db
+$ ./searchbin_better.py -i binaryfile --file gamefile.db
 
 
-Options of SearchBin:
+Options of SearchBin_better.py
 
-$ ./searchbin.py --help
+$ ./searchbin_better.py --help
 
-Optional Arguments:
-  -h, --help            show help message and exit
-  -f FILE, --file FILE  file to read search pattern from
-  -t PATTERN, --text PATTERN
-                        a (non-unicode case-sensitive) text string to search
-                        for
-  -p PATTERN, --pattern PATTERN
+searchbin_better.py -f "filepath" n (-X "hexpattern" | -t "Textpattern" | -i "Patternfilepath" )
+
+Arguments:
+    -f FILE,
+    --file FILE
+        File to search in, multiple files arguments are accepted and
+        searched after one by on
+
+    -i File
+    --inputfilepattern FILE
+                        file to read search pattern from FILE
+
+    -t PATTERN,
+    --textpattern PATTERN
+                        a (non-unicode case-insensitive) text string
+                        to search for
+
+    -x PATTERN,
+    --hexpattern PATTERN
                         a hexidecimal pattern to search for
-  -b NUM, --buffer-size NUM
-                        read buffer size (in bytes). default is 8388608 (8MB)
-  -s NUM, --start NUM   starting position in file to begin searching
-  -e NUM, --end NUM     end search at this position, measuring from beginning
-                        of file
-  -m NUM, --max-count NUM
-                        maximum number of matches to find
-  -l FILE, --log FILE   write matched offsets to FILE, instead of standard
-                        output
-  -v, --verbose         verbose, output the number of bytes searched after
-                        each buffer read
-  -V, --version         print version information
 
+    -u NUMBYTES,
+    --dumpbytes NUMBYTES
+                        dump NUMBYTES like 'hexdump -C' around the match
+
+    -n,
+    --numbergrouping
+                        Enable locale defined Numbergrouping of
+                        decimal outputs, like 21652 -> 21'652
+
+    -c,
+    --casesensitivematch
+                        Enable case sensitive text pattern match
+                        (default off)
+
+    -X SHELLCOMMANDSTRING,
+    --execute SHELLCOMMANDSTRING
+                        execute for each match the given shell command
+                        (Uppercase X!!!!)
+
+    -b NUM,
+    --buffer-size NUM
+                        read buffer size (in bytes). default is 8388608
+                        (8MB)
+
+    -s NUM,
+    --start NUM         starting position in file to begin searching
+
+    -e NUM,
+    --end NUM           end search at this position, measuring from
+                        beginning of file
+
+    -m NUM,
+    --max-matches NUM
+                        maximum number of matches to find
+
+    -l FILE,
+    --logfile FILEPATH
+                        write matched offsets to FILEPATH, instead of
+                        standard output
+
+    -v,
+    --verbose           verbose, output the number of bytes searched
+                        after each buffer read
+
+    -V,
+    --version           print version information
+
+    -h,
+    --help
+                        show help message and exit
 
 
 Extra Notes:
-An argument -t or -p or -f is required. The -p argument accepts a 
-hexidecimal pattern string and allows for missing characters, 
-such as 'FF??FF'. When using -f argument, the pattern file will 
-be read as a binary file (not hex strings). If no search files are 
-specified, %prog will read from standard input. The minimum memory 
-required is about 3 times the size of the pattern byte length. 
-Increasing buffer-size will increase program search speed for 
-large search files. All size arguments (-b -s -e) are read in decimal 
+The arguments -t or -p or -i and -f is required. The -x argument
+accepts an hexidecimal pattern string and allows for missing characters,
+such as 'FF??FF'. When using -i argument, the pattern file will
+be read as a binary file (not hex strings). If no search files are
+specified, %prog will read from standard input. The minimum memory
+required is about 3 times the size of the pattern byte length.
+Increasing buffer-size will increase program search speed for
+large search files. All size arguments (-b -s -e) are read in decimal
 format, for example: '-s 1024' will start searching after 1kilobyte.
 Pattern files do not allow for wildcard matching.
 Reported matches are displayed as 0-based offset.
 
-
-
 Further Examples:
+
+The -X command (upper case X!!!) will execute for each found match a
+shell command with "%f" as filename "%p" as position without thousand
+delimiters while %o is with locale depending thousand delimiters, and
+"%x" as hexadecimal position, e.g.
+
+searchbin_better.py -x "1122" -X "echo 'found match at %o, %x'"
+
 Search for the text string "Tom" in myfile.exe. Text is case sensitive.
-./searchbin.py -t "Tom" myfile.exe
+./searchbin_better.py -t "Tom" myfile.exe
 
-
-Search for the text string "T?m" in myfile.exe, where ? is a wildcard. This will match "Tom" "Tim" "Twm" and all other variations, including non-printing bytes.
-./searchbin.py -t "T?m" myfile.exe
+Search for the text string "T?m" in myfile.exe, where ? is a wildcard.
+This will match "Tom" "Tim" "Twm" and all other variations, including
+non-printing bytes.
+./searchbin_better.py -t "T?m" myfile.exe
 
 
 Search for the hexidecimal pattern "AABBCCDDEE" in myfile.exe.
-./searchbin.py -p "AABBCCDDEE" myfile.exe
+./searchbin_better.py -p "AABBCCDDEE" --file myfile.exe
 
+Searches for the hexidecimal pattern "AA??CC??EE" in myfile.exe, where
+?? can be any byte value.
+./searchbin_better.py -x "AA??CC??EE" --file myfile.exe
 
-Searches for the hexidecimal pattern "AA??CC??EE" in myfile.exe, where ?? can be any byte value.
-./searchbin.py -p "AA??CC??EE" myfile.exe
+Searches for the text pattern "A??damnedByte" in myfile.exe, where
+?? can be any byte value.
+./searchbin_better.py -t "A??damnedByte" --file myfile.exe
 
-
-Takes the binary file pattern.bin, and searches for an exact match within myfile.exe.
-./searchbin.py -f pattern.bin myfile.exe
+Takes the binary file pattern.bin, and searches for an exact match
+within myfile.exe.
+./searchbin_better.py -i pattern.bin --file myfile.exe
 
 
 Features:
 +No compiling necessary
 +Requires Python 2.7 or Python 3
 +Less code
++Python object
 +Search in files of unlimited size
 keywords: hex hexidecimal binary like grep search seek find fast
 
-Please report bugs & feature requests to  sepero 111 @ gmx . com
-  or https://github.com/Sepero/SearchBin/issues
-  or http://seperohacker.blogspot.com/2012/04/binary-grep-program-searchbin.html
+Fomer version by  sepero 111 @ gmx . com
 
