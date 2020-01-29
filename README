@@ -2,7 +2,7 @@ SearchBin_Better is a fast commandline program for searching within
 binary files. It's a bit like grep for binaries.
 
 Version
-    2.0 by holger.ohmacht @ mail . com
+    2.0 by holger.ohmacht @ mail . de
     1.0 by sepero 111 @ gmx . com
 
 It has three capabilities for searching.
